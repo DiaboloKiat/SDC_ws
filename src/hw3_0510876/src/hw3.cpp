@@ -4,17 +4,18 @@
                 http://www.starlino.com/dcm_tutorial.html [direction cosine matrices (DCM)]
 */
 
-#include <Eigen/Dense>
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 #include <geometry_msgs/Point.h>
 #include <visualization_msgs/Marker.h>
+#include <Eigen/Dense>
 
 class HW3
 {
     private:
         //Node handler
-        ros::NodeHandle nh_, pnh_;
+        ros::NodeHandle nh_;
+        ros::NodeHandle pnh_;
 
         //Publisher and Subscriber
         ros::Publisher pub_marker_;
@@ -32,24 +33,22 @@ class HW3
         Eigen::Vector3f gravity;
         Eigen::Vector3f v_g, s_g;
 
-        // Topic string
+        //Topic string
         const std::string SUB_STRING = "/imu/data";
         const std::string PUB_STRING = "/result_marker";
   
-        // Initial marker with 
-        //  Frame id: imu
-        //  Draw type: line strip
-        //  Scale: 0.02 meter
-        //  Color: blue
+        //Initial marker with 
+        //Frame id: imu
+        //Draw type: line strip
+        //Scale: 0.02 meter
+        //Color: blue
         void init_marker(void)
         {
             marker_.header.frame_id = "imu";
             marker_.type = marker_.LINE_STRIP;
-            marker_.action = marker_.ADD
-            marker_.id = 0
             marker_.scale.x = 0.02; 
-            //marker_.scale.y = 0.02; 
-            //marker_.scale.z = 0.02; // 2 cm 
+            marker_.scale.y = 0.02; 
+            marker_.scale.z = 0.02; // 2 cm 
             marker_.color.r = 0; 
             marker_.color.g = 0; 
             marker_.color.b = 1; 
@@ -76,6 +75,7 @@ class HW3
         {
             if(first_data_){
                 first_data_ = false; // Update flag
+                
                 // Using first acceleration as gravity
                 gravity[0] = msg.linear_acceleration.x;
                 gravity[1] = msg.linear_acceleration.y;
@@ -88,19 +88,23 @@ class HW3
                                                     msg.angular_velocity.y*dt, 
                                                     msg.angular_velocity.z*dt);
                 Eigen::Matrix3f B, B_square;
-                B << 0, -w[2], w[1], w[2], 0, -w[0], -w[1], w[0], 0; 
+                B << 0, -w[2], w[1],
+                     w[2], 0, -w[0],
+                     -w[1], w[0], 0; // w_bz&t => w[2]; w_by&t => w[1]; w+bx&t => w[0]  (37)
+                
                 B_square = B*B;
                 double sigma = w.norm();
                 Eigen::Matrix3f I = Eigen::Matrix3f::Identity();
-                C = C*(I+(sin(sigma)/sigma)*B+((1-cos(sigma))/(sigma*sigma))*B_square);
+                C = C*(I+(sin(sigma)/sigma)*B+((1-cos(sigma))/(sigma*sigma))*B_square); // (41)
+                
                 // Update v and s
                 Eigen::Vector3f a_b, a_g;
                 a_b[0] = msg.linear_acceleration.x, 
                 a_b[1] = msg.linear_acceleration.y, 
                 a_b[2] = msg.linear_acceleration.z;
-                a_g = C * a_b;
-                v_g += dt*(a_g-gravity);
-                s_g += dt*v_g;
+                a_g = C * a_b; // (42)
+                v_g += dt*(a_g-gravity); // (43)
+                s_g += dt*v_g; // (44)
             }
 
             if(two_d_mode_) 
