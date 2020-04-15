@@ -86,7 +86,7 @@ class HW4
         // Callback for /robot_pose_ekf/odom_combined
         void cb_combined_odometry(const geometry_msgs::PoseWithCovarianceStamped msg)
         {
-            combined_odometry_.header.frame_id = "marker";
+            combined_odometry_.header.frame_id = msg.header.frame_id;
             geometry_msgs::Point p;
             p.x = msg.pose.pose.position.x;
             p.y = msg.pose.pose.position.y;
@@ -112,7 +112,7 @@ class HW4
         //If first data, save the acceleration as gravity
         //Else, update C matrix and integrate velocity and position vector 
         //and publish pub_imu_path
-        void cb_imu(sensor_msgs::Imu msg)
+        void cb_imu(const sensor_msgs::Imu msg)
         {
             imu2zedOdom(msg);
             if(first_data_){
@@ -149,7 +149,7 @@ class HW4
                 s_g += dt*v_g; // (44)
             }
 
-            Eigen::Matrix3f s_g_tf = cam2zed_trans * imu2cam_trans * s_g;
+            Eigen::Vector3f s_g_tf = cam2zed_trans * imu2cam_trans * s_g;
 
             if(two_d_mode_) 
                 pub_imu(s_g_tf[0], s_g_tf[1]);
@@ -160,32 +160,19 @@ class HW4
         }
 
         //To transform /imu/data from IMU's frame to ZED odometry's frame
-        void imu2zedOdom(sensor_msgs::Imu msg)
+        void imu2zedOdom(const sensor_msgs::Imu msg)
         {
-            Eigen::Vector3f imu_angular, imu_linear;
-            Eigen::Quaterniond imu_orientation_Q;
             sensor_msgs::Imu pub_msg;
-
-            imu_orientation_Q[0] = msg.orientation.w,
-            imu_orientation_Q[1] = msg.orientation.x,
-            imu_orientation_Q[2] = msg.orientation.y,
-            imu_orientation_Q[3] = msg.orientation.z;
-
-            imu_angular[0] = msg.angular_velocity.x,
-            imu_angular[1] = msg.angular_velocity.y,
-            imu_angular[2] = msg.angular_velocity.z;
-
-            imu_linear[0] = msg.linear_acceleration.x,
-            imu_linear[1] = msg.linear_acceleration.y,
-            imu_linear[2] = msg.linear_acceleration.z;
+            Eigen::Quaternionf imu_orientation_Q(msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z);
+            Eigen::Vector3f imu_angular(msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z);
+            Eigen::Vector3f imu_linear(msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z);
     
             Eigen::Matrix3f imu_orientation_M(imu_orientation_Q);
             Eigen::Matrix3f zed_orientation_M(cam2zed_trans * imu2cam_trans * imu_orientation_M);
             Eigen::Vector3f zed_angular(cam2zed_trans * imu2cam_trans * imu_angular);
             Eigen::Vector3f zed_linear(cam2zed_trans * imu2cam_trans * imu_linear);
-            Eigen::Quaterniond zed_orientation_Q(zed_orientation_M);
+            Eigen::Quaternionf zed_orientation_Q(zed_orientation_M);
 
-            
             pub_msg.header = msg.header;
             pub_msg.orientation.w = zed_orientation_Q.w();
             pub_msg.orientation.x = zed_orientation_Q.x();
@@ -216,9 +203,9 @@ class HW4
             initial_marker(imu_integration_, 3);
 
             // Subscribers
-            sub_vo_path = nh.subscribe("/zed/odom", 1, &HW3::cb_visual_odometry, this);
-            sub_co_path = nh.subscribe("/robot_pose_ekf/odom_combined", 1, &HW3::cb_combined_odometry, this);
-            sub_imu_path = nh.subscribe("/imu/data", 1, &HW3::cb_imu, this);
+            sub_vo_path = nh.subscribe("/zed/odom", 1, &HW4::cb_visual_odometry, this);
+            sub_co_path = nh.subscribe("/robot_pose_ekf/odom_combined", 1, &HW4::cb_combined_odometry, this);
+            sub_imu_path = nh.subscribe("/imu/data", 1, &HW4::cb_imu, this);
 
             // Publisher
             pub_vo_path = nh.advertise<visualization_msgs::Marker>("/visual_odometry", 1);
