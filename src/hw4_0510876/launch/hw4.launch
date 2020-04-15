@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- EKF -->
+  <include file="$(find robot_pose_ekf)/robot_pose_ekf.launch"/>
+
+  <!-- Visualization -->
+  <node pkg="hw4_0510876" type="hw4_node" name="hw4_node" output="screen"/>
+
+  <!-- rviz -->
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find hw4_0510876)/config/rviz/hw4.rviz"/>
+
+  <!-- Play bag-->
+  <node pkg="rosbag" type="play" name="player" output="screen" args="$(find hw4_0510876)/include/hw4_0510876/sdc_hw3.bag"/>
+
+</launch>

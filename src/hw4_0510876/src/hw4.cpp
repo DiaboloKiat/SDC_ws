@@ -86,7 +86,7 @@ class HW4
         // Callback for /robot_pose_ekf/odom_combined
         void cb_combined_odometry(const geometry_msgs::PoseWithCovarianceStamped msg)
         {
-            combined_odometry_.header.frame_id = msg.header.frame_id;
+            combined_odometry_.header.frame_id = "marker";
             geometry_msgs::Point p;
             p.x = msg.pose.pose.position.x;
             p.y = msg.pose.pose.position.y;
