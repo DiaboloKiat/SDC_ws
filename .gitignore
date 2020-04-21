@@ -5,3 +5,5 @@ install/
 .catkin_workspace
 *.bag
 *.zip
+*.pcd
+test_data/
