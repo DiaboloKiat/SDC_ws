@@ -4,7 +4,7 @@
     <arg name="vg_size" default="0.4" doc="voxel grid size" />
     <arg name="local_sizex" default="100" doc="local lidar data x range" />
     <arg name="local_sizey" default="24" doc="local lidar data y range" />
-    <arg name="remove_sizey_l" default="-10" doc="remove lidar data y range" />
+    <arg name="remove_sizey_l" default="-20" doc="remove lidar data y range" />
     <arg name="remove_sizey_h" default="10" doc="remove lidar data y range" />
     <arg name="submap_size" default="200" doc="cropped submap size" />
     <arg name="use_rviz" default="false" />
@@ -14,7 +14,7 @@
     <arg name="num_pretest_poses" default="200" />
 
     <param name="use_sim_time" value="true"/>
-    <node name="solution3_node" pkg="midterm_localization_test" type="solution3_node" output="screen" >
+    <node name="solution_medium_node" pkg="midterm_localization" type="solution_medium_node" output="screen" >
         <param name="map_name" value="$(arg map_name)" />
         <param name="vg_size" value="$(arg vg_size)" />
         <param name="submap_size" value="$(arg submap_size)" />
@@ -31,12 +31,12 @@
     <group if="$(eval arg('use_rviz') == true)">
         <group if="$(eval arg('map_name') == 'itri')">
             <node pkg="rviz" type="rviz" name="rviz_node" output="screen"
-                args="-d $(find midterm_localization_test)/rviz/itri_setting.rviz"/>
+                args="-d $(find midterm_localization)/rviz/itri_setting.rviz"/>
         </group>
 
         <group if="$(eval arg('map_name') == 'nuscene')">
             <node pkg="rviz" type="rviz" name="rviz_node" output="screen"
-                args="-d $(find midterm_localization_test)/rviz/nuscene_setting.rviz"/>
+                args="-d $(find midterm_localization)/rviz/nuscene_setting.rviz"/>
         </group>
     </group>
 

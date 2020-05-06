@@ -206,6 +206,27 @@ add_executable(read_csv src/read_csv.cpp)
 add_dependencies(read_csv ${catkin_EXPORTED_TARGETS})
 target_link_libraries(read_csv ${catkin_LIBRARIES})
 
+include_directories(${EIGEN3_INCLUDE_DIRS})
+add_executable(load_map_node2 src/load_map_node2.cpp)    
+target_link_libraries (load_map_node2 
+  ${EIGEN3_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
+
+include_directories(${EIGEN3_INCLUDE_DIRS})
+add_executable(solution_easy_node src/solution_easy_node.cpp)    
+target_link_libraries (solution_easy_node 
+  ${EIGEN3_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
+
+include_directories(${EIGEN3_INCLUDE_DIRS})
+add_executable(solution_medium_node src/solution_medium_node.cpp)    
+target_link_libraries (solution_medium_node 
+  ${EIGEN3_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
+
 #############
 ## Install ##
 #############

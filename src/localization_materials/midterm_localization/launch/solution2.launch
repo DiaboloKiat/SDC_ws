@@ -11,7 +11,7 @@
     <arg name="num_pretest_poses" default="200" />
 
     <param name="use_sim_time" value="true"/>
-    <node name="solution2_node" pkg="midterm_localization" type="solution2_node" output="screen" >
+    <node name="solution2_node" pkg="midterm_localization_test" type="solution2_node" output="screen" >
         <param name="map_name" value="$(arg map_name)" />
         <param name="vg_size" value="$(arg vg_size)" />
         <param name="submap_size" value="$(arg submap_size)" />
@@ -23,7 +23,7 @@
     <!-- RVIZ -->
     <group if="$(eval arg('use_rviz') == true)">
         <node pkg="rviz" type="rviz" name="rviz_node" output="screen"
-            args="-d $(find midterm_localization)/rviz/default_setting.rviz"/>
+            args="-d $(find midterm_localization_test)/rviz/default_setting.rviz"/>
     </group>
 
 </launch>
