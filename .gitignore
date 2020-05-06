@@ -3,7 +3,11 @@ devel/
 build/
 install/
 .catkin_workspace
+.vscode/
 *.bag
 *.zip
 *.pcd
 test_data/
+ITRI_data/
+Nuscenes/
+

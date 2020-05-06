@@ -21,12 +21,14 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   visualization_msgs
+  tf_conversions
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(Eigen3 REQUIRED)
 find_package(GeographicLib REQUIRED)
+add_definitions (${GeographicLib_DEFINITIONS})
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -129,6 +131,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${GeographicLib_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -167,6 +170,41 @@ target_link_libraries (load_map_node
   ${EIGEN3_LIBRARIES}
   ${catkin_LIBRARIES}
 )
+
+include_directories(${EIGEN3_INCLUDE_DIRS})
+add_executable(load_map_node1 src/load_map_node1.cpp)    
+target_link_libraries (load_map_node1 
+  ${EIGEN3_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
+
+include_directories(${EIGEN3_INCLUDE_DIRS})
+add_executable(solution1_node src/solution1_node.cpp)    
+target_link_libraries (solution1_node 
+  ${EIGEN3_LIBRARIES}
+  ${catkin_LIBRARIES}
+  ${GeographicLib_LIBRARIES}
+)
+
+include_directories(${EIGEN3_INCLUDE_DIRS})
+add_executable(solution2_node src/solution2_node.cpp)    
+target_link_libraries (solution2_node 
+  ${EIGEN3_LIBRARIES}
+  ${catkin_LIBRARIES}
+  ${GeographicLib_LIBRARIES}
+)
+
+include_directories(${EIGEN3_INCLUDE_DIRS})
+add_executable(solution3_node src/solution3_node.cpp)    
+target_link_libraries (solution3_node 
+  ${EIGEN3_LIBRARIES}
+  ${catkin_LIBRARIES}
+  ${GeographicLib_LIBRARIES}
+)
+
+add_executable(read_csv src/read_csv.cpp)
+add_dependencies(read_csv ${catkin_EXPORTED_TARGETS})
+target_link_libraries(read_csv ${catkin_LIBRARIES})
 
 #############
 ## Install ##
