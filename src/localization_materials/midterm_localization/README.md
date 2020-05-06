@@ -19,7 +19,7 @@ Please put the \*.pcd files to test_data/[MAP_NAME] folder like this:
                 ...
 ```
 
-# For ITRI map
+# For ITRI and NuScene map
 After compiling(catkin_make), run the code by:  
 ### ITRI
 ```bash
@@ -34,7 +34,7 @@ roslaunch midterm_localization solution_easy.launch use_rviz:=true \
 --------------------------------------------------------
 rosbag play ITRI_Private_1.bag --clock -r 0.05
 ```
-### Nuscenes
+### NuScenes
 ```bash
 roslaunch midterm_localization solution_medium.launch use_rviz:=true \
     map_name:=nuscene \
@@ -49,9 +49,5 @@ roslaunch midterm_localization solution_medium.launch use_rviz:=true \
 --------------------------------------------------------
 rosbag play Nu_Private_1.bag --clock -r 0.05
 ```
-
-
-# For NuScene map
-
 
 # Parameters description
