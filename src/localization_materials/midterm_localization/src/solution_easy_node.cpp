@@ -1,4 +1,5 @@
 #include <signal.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
@@ -192,6 +193,7 @@ Solution3Node::Solution3Node(ros::NodeHandle nh, ros::NodeHandle pnh):
     // icp_.setMaxCorrespondenceDistance(30);
 
     filters_setup(voxel_grid_size);
+    std::this_thread::sleep_for(3s);
     map_setup();
     visualization_setup();
     
@@ -380,12 +382,6 @@ void Solution3Node::pose_cb(const geometry_msgs::PoseStampedPtr &msg) {
         tf::poseMsgToEigen(msg->pose, try_matrix);
         cout << "init_guess manually:" << endl;
         cout << try_matrix.matrix() << endl;
-        
-        Eigen::Quaterniond q(try_matrix.matrix().topLeftCorner<3, 3>());
-        Eigen::Vector3d euler = q.toRotationMatrix().eulerAngles(2, 1, 0); 
-        cout << "yaw: " << euler(0) 
-             << ", pitch: " << euler(1)
-             << ", roll: " << euler(2) << endl;
 
         double z = guess_matrix_(2, 3);
         guess_matrix_ = try_matrix.matrix();
@@ -578,9 +574,9 @@ void multi_thread_guess(Solution3Node& node) {
                 node.guess_list_[index_todo].guess_matrix_ = quick_icp.getFinalTransformation().cast<double>();
                 
                 // Assign the original_matrix is the first result of icp 
-                if(j == 0)
-                    node.guess_list_[index_todo].original_matrix_ = 
-                        quick_icp.getFinalTransformation().cast<double>();
+                // if(j == 0)
+                //     node.guess_list_[index_todo].original_matrix_ = 
+                //         quick_icp.getFinalTransformation().cast<double>();
             }
             node.guess_list_[index_todo].status_ = 2;
         } 

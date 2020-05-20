@@ -1,10 +1,15 @@
 #include <signal.h>
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
+#include <math.h>
 // C++ STL
 #include <iostream>
+#include <fstream>
+#include <thread>
+#include <chrono>
+#include <mutex>
 #include <boost/filesystem.hpp> // Support in STL since C++14
 #include <boost/date_time/posix_time/posix_time.hpp>
 // ROS
@@ -35,6 +40,7 @@
 // TF
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
+#include <tf_conversions/tf_eigen.h>
 // PCL_ROS
 #include <pcl_ros/transforms.h>
 // GeographicLib
@@ -42,6 +48,16 @@
 #include <GeographicLib/LocalCartesian.hpp>
 
 using namespace std;
+
+typedef pcl::PointCloud<pcl::PointXYZ> PointCloudXYZ;
+typedef pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudXYZPtr;
+typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloudXYZRGB;
+typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr PointCloudXYZRGBPtr;
+
+#define kLatOrigin 24.7855644226
+#define kLonOrigin 120.997009277
+#define kAltOrigin 127.651
+#define kGlobalFrame "map"
 
 static const string COLOR_RED = "\e[0;31m";
 static const string COLOR_GREEN = "\e[0;32m";
@@ -51,53 +67,159 @@ static const string COLOR_NC = "\e[0m";
 class ReadCSV
 {
     private:
-        std::vector<double> matrix;
+        ros::NodeHandle nh_, pnh_;
+        ros::Publisher pub_map_;                // whole map pointcloud
+        ros::Publisher pub_result_path_g_;      //Ground truth
+        ros::Publisher pub_result_path_r_;      //result
+        std::vector<double> matrix_g_, matrix_r_;
+        PointCloudXYZPtr map_pc_ptr_;
+        pcl::VoxelGrid<pcl::PointXYZ> voxel_grid_;  // Voxel grid filter
+        nav_msgs::Path result_path_g_, result_path_r_;
         
-        bool read_file(char* file)
-        {
-            std::ifstream f;
-            std::string line;
-            f.open(file, std::ifstream::in);
+        string map_name_;               // options: nctu, itri, nuscene
+        string result_csv_;
 
-            if(!f)
+        void map_setup(void) 
+        {
+            // Find map pcd files
+            string package_path = ros::package::getPath("midterm_localization");
+            string maps_dir = package_path + "/../test_data/" + map_name_ + "_map";
+            std::vector<std::string> maps_list;
+            for(const auto &entry:boost::filesystem::directory_iterator(maps_dir)) 
+            {
+                string map_file = entry.path().string();
+                if(map_file.substr(map_file.find_last_of(".") + 1) == "pcd")
+                {
+                    maps_list.push_back(map_file);
+                }
+            }
+            // Load map pointcloud from pcd files 
+            map_pc_ptr_ = PointCloudXYZPtr(new PointCloudXYZ);
+            PointCloudXYZPtr tempPtr(new PointCloudXYZ);
+            for(auto file_path: maps_list) 
+            {
+                cout << file_path << endl;
+                if(pcl::io::loadPCDFile<pcl::PointXYZ>(file_path, *tempPtr) == -1)
+                {
+                    ROS_ERROR("Cannot load map: %s, aborting...", file_path.c_str());
+                    ros::shutdown();
+                } 
+                *map_pc_ptr_ += *tempPtr;
+            }
+            ROS_INFO("Load all maps successfully, there are %d sub maps and %d points", (int)maps_list.size(), (int)map_pc_ptr_->points.size());
+
+            // Remove nan
+            std::vector<int> indice;
+            pcl::removeNaNFromPointCloud(*map_pc_ptr_, *map_pc_ptr_, indice);
+
+            ROS_INFO("After filtering, there are %d points", (int)map_pc_ptr_->points.size());
+
+            // Publish map pointcloud
+            // if(pub_map_.getNumSubscribers() > 0) 
+            // {
+                sensor_msgs::PointCloud2 map_msg;
+                pcl::toROSMsg(*map_pc_ptr_, map_msg);
+                map_msg.header.frame_id = kGlobalFrame;
+                pub_map_.publish(map_msg);
+            // }
+        }
+        void read_file(void)
+        {
+            // Find map pcd files
+            string package_path = ros::package::getPath("midterm_localization");
+            string maps_dir = package_path + "/../test_data/" + map_name_ + "_map";
+            std::ifstream f_g_, f_r_;
+            std::string line_g_, line_r_;
+            if(map_name_ == "nuscene")
+            {
+                f_g_.open(maps_dir + "/Nu_Public_Ground_Truth.csv", std::ifstream::in);
+            }
+            else if(map_name_ == "itri")
+            {
+                f_g_.open(maps_dir + "/ITRI_Public_Ground_truth.csv", std::ifstream::in);
+            }
+            else
+            {
+                // Show ERROR because this version of code no longer support libgeograpic
+                cout << COLOR_RED << "This code doesn't support Geographic transform. Aborting..." << COLOR_NC << endl;  
+                ros::shutdown();
+            }
+            
+            f_r_.open(package_path + "/csv_files/" + result_csv_, std::ifstream::in);
+
+            if(!f_g_ && !f_r_)
             {
                 printf("Can't open the file!!!\n");
-                return false;
+                ros::shutdown();
             }
 
-            while(std::getline(f, line))
+            while(std::getline(f_g_, line_g_))
             {
-                std::istringstream templine(line);
-                std::string data;
-                while(std::getline(templine, data, ','))
+                std::istringstream templine(line_g_);
+                std::string data_g_;
+                while(std::getline(templine, data_g_, ','))
                 {
-                    matrix.push_back(atof(data.c_str()));
-                    //printf("%f ",atof(data.c_str()));
+                    matrix_g_.push_back(atof(data_g_.c_str()));
+                    cout << COLOR_RED << atof(data_g_.c_str()) << COLOR_NC << " ";
+                    //printf("%f ",atof(data_g_.c_str()));
                 }
-                //printf("\n");
+                cout << endl;
             }
-            f.close();
-            return true;
+            //printf("---------------------------------------------------------------------------------\n");
+            while(std::getline(f_r_, line_r_))
+            {
+                std::istringstream templine(line_r_);
+                std::string data_r_;
+                while(std::getline(templine, data_r_, ','))
+                {
+                    matrix_r_.push_back(atof(data_r_.c_str()));
+                    cout << COLOR_YELLOW << atof(data_r_.c_str()) << COLOR_NC << " ";
+                    //printf("%f ",atof(data_r_.c_str()));
+                }
+                cout << endl;
+            }
+            f_g_.close();
+            f_r_.close();
         }
     public:
-        ReadCSV(char* file)
+        ReadCSV(ros::NodeHandle nh, ros::NodeHandle pnh):nh_(nh), pnh_(pnh)
         {
-            if(!read_file(file))
-                return;
-            
+            // ROS parameters
+            double voxel_grid_size;
+            ros::param::param<double>("~vg_size", voxel_grid_size, 0.25);
+            ros::param::param<string>("~map_name", map_name_, "nctu");
+            ros::param::param<string>("~result_csv", result_csv_, "csv");
+
+            // ROS publisher, subscriber
+            pub_map_ = nh.advertise<sensor_msgs::PointCloud2>("map_pc", 1);
+            pub_result_path_g_ = nh.advertise<nav_msgs::Path>("result_path_g_", 1);
+            pub_result_path_r_ = nh.advertise<nav_msgs::Path>("result_path_r_", 1);
+
+            if(map_name_ == "nctu") 
+            { 
+                // Show ERROR because this version of code no longer support libgeograpic
+                cout << COLOR_RED << "This code doesn't support Geographic transform. Aborting..." << COLOR_NC << endl;  
+                ros::shutdown();
+            } 
+            std::this_thread::sleep_for(3s);
+            map_setup();
+            read_file();
         }
 };
 
 
 int main(int argc, char** argv)
 {
-    if(argc!=2)
+    if(argc!=3)
     {
         printf("Not enough input, please provide input file!!! \n");
         return -1;
     }
-    printf("Start:\n");
-    ReadCSV r_csv(argv[1]);
+    cout << COLOR_GREEN << "Start:" << COLOR_NC << endl;
+    ros::init(argc, argv, "read_csv_node");
+    ros::NodeHandle nh, pnh("~");
+    ReadCSV r_csv(nh, pnh);
     printf("-----------------------------END!!!-----------------------------\n");
+    ros::spin();
     return 0;
 }

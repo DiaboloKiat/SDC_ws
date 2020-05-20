@@ -1,19 +1,19 @@
 digraph G {
-"car" -> "nuscenes_lidar"[label="Broadcaster: /play_1588602550325148904\nAverage rate: 25.048 Hz\nMost recent transform: 1535487927.497 ( 0.023 sec old)\nBuffer length: 0.200 sec\n"];
-"car" -> "nuscenes_radar_front"[label="Broadcaster: /play_1588602550325148904\nAverage rate: 25.048 Hz\nMost recent transform: 1535487927.497 ( 0.023 sec old)\nBuffer length: 0.200 sec\n"];
-"car" -> "nuscenes_radar_front_left"[label="Broadcaster: /play_1588602550325148904\nAverage rate: 25.048 Hz\nMost recent transform: 1535487927.497 ( 0.023 sec old)\nBuffer length: 0.200 sec\n"];
-"car" -> "nuscenes_radar_front_right"[label="Broadcaster: /play_1588602550325148904\nAverage rate: 25.048 Hz\nMost recent transform: 1535487927.497 ( 0.023 sec old)\nBuffer length: 0.200 sec\n"];
-"car" -> "nuscenes_radar_back_left"[label="Broadcaster: /play_1588602550325148904\nAverage rate: 25.048 Hz\nMost recent transform: 1535487927.497 ( 0.023 sec old)\nBuffer length: 0.200 sec\n"];
-"car" -> "nuscenes_radar_back_right"[label="Broadcaster: /play_1588602550325148904\nAverage rate: 25.048 Hz\nMost recent transform: 1535487927.497 ( 0.023 sec old)\nBuffer length: 0.200 sec\n"];
-"car" -> "nuscenes_cam_front"[label="Broadcaster: /play_1588602550325148904\nAverage rate: 25.048 Hz\nMost recent transform: 1535487927.497 ( 0.023 sec old)\nBuffer length: 0.200 sec\n"];
-"car" -> "nuscenes_cam_front_right"[label="Broadcaster: /play_1588602550325148904\nAverage rate: 25.048 Hz\nMost recent transform: 1535487927.497 ( 0.023 sec old)\nBuffer length: 0.200 sec\n"];
-"car" -> "nuscenes_cam_front_left"[label="Broadcaster: /play_1588602550325148904\nAverage rate: 25.048 Hz\nMost recent transform: 1535487927.497 ( 0.023 sec old)\nBuffer length: 0.200 sec\n"];
-"car" -> "nuscenes_cam_back"[label="Broadcaster: /play_1588602550325148904\nAverage rate: 25.048 Hz\nMost recent transform: 1535487927.497 ( 0.023 sec old)\nBuffer length: 0.200 sec\n"];
-"car" -> "nuscenes_cam_back_right"[label="Broadcaster: /play_1588602550325148904\nAverage rate: 25.048 Hz\nMost recent transform: 1535487927.497 ( 0.023 sec old)\nBuffer length: 0.200 sec\n"];
-"car" -> "nuscenes_cam_back_left"[label="Broadcaster: /play_1588602550325148904\nAverage rate: 25.048 Hz\nMost recent transform: 1535487927.497 ( 0.023 sec old)\nBuffer length: 0.200 sec\n"];
-"car" -> "lidar_label"[label="Broadcaster: /play_1588602550325148904\nAverage rate: 25.048 Hz\nMost recent transform: 1535487927.497 ( 0.023 sec old)\nBuffer length: 0.200 sec\n"];
+"car" -> "nuscenes_lidar"[label="Broadcaster: /play_1588925131343138044\nAverage rate: 24.982 Hz\nMost recent transform: 1532708589.498 ( 56216672.168 sec old)\nBuffer length: 0.200 sec\n"];
+"car" -> "nuscenes_radar_front"[label="Broadcaster: /play_1588925131343138044\nAverage rate: 24.982 Hz\nMost recent transform: 1532708589.498 ( 56216672.168 sec old)\nBuffer length: 0.200 sec\n"];
+"car" -> "nuscenes_radar_front_left"[label="Broadcaster: /play_1588925131343138044\nAverage rate: 24.982 Hz\nMost recent transform: 1532708589.498 ( 56216672.168 sec old)\nBuffer length: 0.200 sec\n"];
+"car" -> "nuscenes_radar_front_right"[label="Broadcaster: /play_1588925131343138044\nAverage rate: 24.982 Hz\nMost recent transform: 1532708589.498 ( 56216672.168 sec old)\nBuffer length: 0.200 sec\n"];
+"car" -> "nuscenes_radar_back_left"[label="Broadcaster: /play_1588925131343138044\nAverage rate: 24.982 Hz\nMost recent transform: 1532708589.498 ( 56216672.168 sec old)\nBuffer length: 0.200 sec\n"];
+"car" -> "nuscenes_radar_back_right"[label="Broadcaster: /play_1588925131343138044\nAverage rate: 24.982 Hz\nMost recent transform: 1532708589.498 ( 56216672.168 sec old)\nBuffer length: 0.200 sec\n"];
+"car" -> "nuscenes_cam_front"[label="Broadcaster: /play_1588925131343138044\nAverage rate: 24.982 Hz\nMost recent transform: 1532708589.498 ( 56216672.168 sec old)\nBuffer length: 0.200 sec\n"];
+"car" -> "nuscenes_cam_front_right"[label="Broadcaster: /play_1588925131343138044\nAverage rate: 24.982 Hz\nMost recent transform: 1532708589.498 ( 56216672.168 sec old)\nBuffer length: 0.200 sec\n"];
+"car" -> "nuscenes_cam_front_left"[label="Broadcaster: /play_1588925131343138044\nAverage rate: 24.982 Hz\nMost recent transform: 1532708589.498 ( 56216672.168 sec old)\nBuffer length: 0.200 sec\n"];
+"car" -> "nuscenes_cam_back"[label="Broadcaster: /play_1588925131343138044\nAverage rate: 24.982 Hz\nMost recent transform: 1532708589.498 ( 56216672.168 sec old)\nBuffer length: 0.200 sec\n"];
+"car" -> "nuscenes_cam_back_right"[label="Broadcaster: /play_1588925131343138044\nAverage rate: 24.982 Hz\nMost recent transform: 1532708589.498 ( 56216672.168 sec old)\nBuffer length: 0.200 sec\n"];
+"car" -> "nuscenes_cam_back_left"[label="Broadcaster: /play_1588925131343138044\nAverage rate: 24.982 Hz\nMost recent transform: 1532708589.498 ( 56216672.168 sec old)\nBuffer length: 0.200 sec\n"];
+"car" -> "lidar_label"[label="Broadcaster: /play_1588925131343138044\nAverage rate: 24.982 Hz\nMost recent transform: 1532708589.498 ( 56216672.168 sec old)\nBuffer length: 0.200 sec\n"];
 edge [style=invis];
  subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
-"Recorded at time: 1535487927.520"[ shape=plaintext ] ;
+"Recorded at time: 1588925261.665"[ shape=plaintext ] ;
  }->"car";
 }
